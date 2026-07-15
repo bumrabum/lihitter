@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>lihitter — job results</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f4f4f5;
+            color: #18181b;
+            min-height: 100vh;
+            padding-bottom: 38px;
+        }
+
+        header {
+            background: #0a66c2;
+            color: #fff;
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        header .brand {
+            display: flex;
+            flex-direction: column;
+        }
+
+        header h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        header .subtitle {
+            font-size: 0.8rem;
+            opacity: 0.75;
+            margin-top: 2px;
+        }
+
+        header nav {
+            display: flex;
+            gap: 6px;
+        }
+
+        header nav a {
+            color: rgba(255, 255, 255, 0.75);
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 6px 14px;
+            border-radius: 6px;
+            transition: background 0.12s, color 0.12s;
+        }
+
+        header nav a:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+
+        header nav a.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .toolbar {
+            padding: 12px 28px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            background: #fff;
+            border-bottom: 1px solid #e4e4e7;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .toolbar input[type="search"] {
+            flex: 1;
+            min-width: 200px;
+            padding: 7px 11px;
+            border: 1px solid #d4d4d8;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            outline: none;
+        }
+
+        .toolbar input:focus {
+            border-color: #0a66c2;
+            box-shadow: 0 0 0 2px #0a66c218;
+        }
+
+        .filter-btns {
+            display: flex;
+            gap: 5px;
+        }
+
+        .filter-btn {
+            padding: 6px 13px;
+            border-radius: 6px;
+            border: 1px solid #d4d4d8;
+            background: #fff;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: all 0.12s;
+            white-space: nowrap;
+        }
+
+        .filter-btn:hover {
+            background: #f4f4f5;
+        }
+
+        .filter-btn.active {
+            background: #0a66c2;
+            color: #fff;
+            border-color: #0a66c2;
+        }
+
+        .count {
+            margin-left: auto;
+            font-size: 0.82rem;
+            color: #71717a;
+            white-space: nowrap;
+        }
+
+        /* Table wrapper */
+        .table-wrap {
+            padding: 20px 28px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #e4e4e7;
+            font-size: 0.875rem;
+        }
+
+        thead {
+            background: #f9f9fa;
+            border-bottom: 1px solid #e4e4e7;
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #71717a;
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #f0f0f1;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: #f8faff;
+        }
+
+        tbody tr.selected {
+            background: #eff6ff;
+        }
+
+        tbody tr.row-all-match {
+            background: #bbf7d0;
+        }
+
+        tbody tr.row-all-match:hover {
+            background: #86efac;
+        }
+
+        tbody tr.row-all-match.selected {
+            background: #4ade80;
+        }
+
+        .td-checklist {
+            white-space: nowrap;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        .td-checklist.all-match {
+            color: #15803d;
+        }
+
+        .td-checklist.partial-match {
+            color: #52525b;
+        }
+
+        .td-checklist.no-results {
+            color: #a1a1aa;
+        }
+
+        td {
+            padding: 11px 14px;
+            vertical-align: middle;
+        }
+
+        .td-title {
+            font-weight: 500;
+            max-width: 260px;
+        }
+
+        .td-title a {
+            color: #18181b;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .td-title a:hover {
+            color: #0a66c2;
+            text-decoration: underline;
+        }
+
+        .td-company {
+            color: #0a66c2;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .td-location {
+            color: #71717a;
+            white-space: nowrap;
+        }
+
+        .td-date {
+            color: #a1a1aa;
+            white-space: nowrap;
+            font-size: 0.8rem;
+        }
+
+        .td-desc {
+            max-width: 320px;
+            color: #52525b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.82rem;
+        }
+
+        /* Pass/fail badge */
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            white-space: nowrap;
+        }
+
+        .badge.pass {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge.fail {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        /* Status select */
+        .status-select {
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid #d4d4d8;
+            font-size: 0.8rem;
+            background: #fff;
+            cursor: pointer;
+            outline: none;
+            min-width: 110px;
+            transition: border-color 0.12s;
+        }
+
+        .status-select:focus {
+            border-color: #0a66c2;
+        }
+
+        .status-select.s-new {
+            background: #f4f4f5;
+            color: #52525b;
+        }
+
+        .status-select.s-applied {
+            background: #dbeafe;
+            color: #1d4ed8;
+            border-color: #93c5fd;
+        }
+
+        .status-select.s-wont_apply {
+            background: #fef9c3;
+            color: #854d0e;
+            border-color: #fde047;
+        }
+
+        .status-select.s-ignore {
+            background: #f4f4f5;
+            color: #a1a1aa;
+            border-color: #d4d4d8;
+        }
+
+        .status-select.s-auto_skip {
+            background: #fce7f3;
+            color: #9d174d;
+            border-color: #f9a8d4;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 80px 20px;
+            color: #71717a;
+        }
+
+        /* Detail drawer */
+        .drawer-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #00000045;
+            z-index: 100;
+        }
+
+        .drawer-backdrop.open {
+            display: block;
+        }
+
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: min(700px, 100vw);
+            background: #fff;
+            z-index: 101;
+            transform: translateX(100%);
+            transition: transform 0.22s ease;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -4px 0 24px #0002;
+        }
+
+        .drawer.open {
+            transform: translateX(0);
+        }
+
+        .drawer-header {
+            padding: 20px 24px 0;
+        }
+
+        .drawer-top {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .drawer-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            flex: 1;
+            line-height: 1.3;
+        }
+
+        .drawer-close {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: #71717a;
+            padding: 2px 6px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .drawer-close:hover {
+            color: #18181b;
+        }
+
+        .drawer-meta {
+            margin-top: 6px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 16px;
+            align-items: center;
+        }
+
+        .drawer-company {
+            font-size: 0.9rem;
+            color: #0a66c2;
+            font-weight: 500;
+        }
+
+        .drawer-location {
+            font-size: 0.85rem;
+            color: #71717a;
+        }
+
+        .drawer-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .drawer-link {
+            font-size: 0.82rem;
+            color: #0a66c2;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .drawer-link:hover {
+            text-decoration: underline;
+        }
+
+        .drawer-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 22px 24px;
+        }
+
+        .drawer-section {
+            margin-bottom: 24px;
+        }
+
+        .drawer-section h3 {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #a1a1aa;
+            margin-bottom: 10px;
+        }
+
+        .drawer-desc {
+            font-size: 0.875rem;
+            line-height: 1.75;
+            color: #3f3f46;
+            white-space: pre-wrap;
+        }
+
+        .eval-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+
+        .hits {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .hit-tag {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .hit-tag.include {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .hit-tag.exclude {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        /* ── Drawer tabs ── */
+        .drawer-tabs {
+            display: flex;
+            margin-top: 12px;
+            border-bottom: 1px solid #e4e4e7;
+        }
+
+        .drawer-tab {
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            padding: 9px 18px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #71717a;
+            cursor: pointer;
+            margin-bottom: -1px;
+            transition: color 0.12s, border-color 0.12s;
+        }
+
+        .drawer-tab:hover {
+            color: #18181b;
+        }
+
+        .drawer-tab.active {
+            color: #0a66c2;
+            border-bottom-color: #0a66c2;
+            font-weight: 600;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* ── Rules match tab ── */
+        .rules-toolbar {
+            padding: 14px 0 6px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .results-empty {
+            padding: 48px 20px;
+            text-align: center;
+            color: #a1a1aa;
+            font-size: 0.875rem;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        .results-table th {
+            padding: 9px 14px;
+            text-align: left;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #71717a;
+            background: #f9f9fa;
+            border-bottom: 1px solid #e4e4e7;
+        }
+
+        .results-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #f0f0f1;
+            vertical-align: top;
+        }
+
+        .results-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .check-label-cell {
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .reasoning-text {
+            font-size: 0.82rem;
+            color: #52525b;
+            margin-top: 2px;
+            line-height: 1.5;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #d4d4d8;
+            border-top-color: #0a66c2;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .ran-at {
+            font-size: 0.75rem;
+            color: #a1a1aa;
+            padding: 8px 0;
+        }
+
+        /* ── Manual add form ── */
+        .add-job-bar {
+            padding: 12px 28px;
+            background: #fff;
+            border-bottom: 1px solid #e4e4e7;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .add-job-bar input[type="url"] {
+            flex: 1;
+            padding: 7px 11px;
+            border: 1px solid #d4d4d8;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            outline: none;
+        }
+
+        .add-job-bar input[type="url"]:focus {
+            border-color: #0a66c2;
+            box-shadow: 0 0 0 2px #0a66c218;
+        }
+
+        .btn-add {
+            padding: 7px 16px;
+            background: #0a66c2;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.12s;
+        }
+
+        .btn-add:hover:not(:disabled) {
+            background: #0958a8;
+        }
+
+        .btn-add:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .add-job-status {
+            font-size: 0.82rem;
+            white-space: nowrap;
+        }
+
+        .add-job-status.error {
+            color: #b91c1c;
+        }
+
+        .add-job-status.ok {
+            color: #15803d;
+        }
+
+        .btn-reparse {
+            padding: 3px 10px;
+            background: #fff;
+            color: #52525b;
+            border: 1px solid #d4d4d8;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.12s, border-color 0.12s;
+        }
+
+        .btn-reparse:hover:not(:disabled) {
+            background: #f4f4f5;
+            border-color: #a1a1aa;
+        }
+
+        .btn-reparse:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .btn-rematch {
+            padding: 3px 10px;
+            background: #fff;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.12s, border-color 0.12s;
+        }
+
+        .btn-rematch:hover:not(:disabled) {
+            background: #fffbeb;
+            border-color: #f59e0b;
+        }
+
+        .btn-rematch:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .btn-rematch-all {
+            padding: 6px 14px;
+            background: #fff;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.12s, border-color 0.12s;
+        }
+
+        .btn-rematch-all:hover:not(:disabled) {
+            background: #fffbeb;
+            border-color: #f59e0b;
+        }
+
+        .btn-rematch-all:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .btn-parse-gmail {
+            padding: 6px 14px;
+            background: #fff;
+            color: #166534;
+            border: 1px solid #86efac;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.12s, border-color 0.12s;
+        }
+
+        .btn-parse-gmail:hover:not(:disabled) {
+            background: #f0fdf4;
+            border-color: #4ade80;
+        }
+
+        .btn-parse-gmail:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        /* ── Debug bar ── */
+        .debug-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #18181b;
+            color: #e4e4e7;
+            z-index: 200;
+            font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+            font-size: 0.78rem;
+            box-shadow: 0 -2px 12px #0005;
+        }
+
+        .debug-bar-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 16px;
+            cursor: pointer;
+            user-select: none;
+            border-top: 1px solid #3f3f46;
+            min-height: 38px;
+        }
+
+        .debug-bar-title {
+            font-weight: 700;
+            color: #a78bfa;
+            font-size: 0.78rem;
+            letter-spacing: 0.5px;
+        }
+
+        .debug-bar-summary {
+            color: #52525b;
+            font-size: 0.75rem;
+            flex: 1;
+        }
+
+        .debug-bar-clear {
+            background: none;
+            border: 1px solid #3f3f46;
+            color: #71717a;
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 0.72rem;
+            cursor: pointer;
+            font-family: inherit;
+            line-height: 1.5;
+            transition: border-color 0.12s, color 0.12s;
+        }
+
+        .debug-bar-clear:hover {
+            border-color: #71717a;
+            color: #e4e4e7;
+        }
+
+        .debug-chevron {
+            color: #52525b;
+            font-size: 0.68rem;
+            width: 14px;
+            text-align: center;
+        }
+
+        .debug-bar-body {
+            max-height: 200px;
+            overflow-y: auto;
+            border-top: 1px solid #27272a;
+        }
+
+        .debug-log {
+            padding: 2px 0;
+        }
+
+        .debug-entry {
+            display: grid;
+            grid-template-columns: 5.5rem 4.8rem 1fr auto;
+            gap: 0 14px;
+            align-items: baseline;
+            padding: 3px 16px;
+            border-bottom: 1px solid #ffffff06;
+        }
+
+        .debug-entry:last-child {
+            border-bottom: none;
+        }
+
+        .debug-entry:hover {
+            background: #27272a;
+        }
+
+        .debug-ts {
+            color: #3f3f46;
+            font-size: 0.71rem;
+            white-space: nowrap;
+        }
+
+        .debug-type {
+            font-weight: 700;
+            font-size: 0.71rem;
+            white-space: nowrap;
+            letter-spacing: 0.4px;
+        }
+
+        .debug-type.parse {
+            color: #60a5fa;
+        }
+
+        .debug-type.reparse {
+            color: #c084fc;
+        }
+
+        .debug-type.match {
+            color: #34d399;
+        }
+
+        .debug-type.rematch {
+            color: #fbbf24;
+        }
+
+        .debug-type.webhook {
+            color: #f97316;
+        }
+
+        .debug-type.gmail {
+            color: #4ade80;
+        }
+
+        .debug-url {
+            color: #71717a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.71rem;
+        }
+
+        .debug-result {
+            white-space: nowrap;
+            font-size: 0.71rem;
+        }
+
+        .debug-result.ok {
+            color: #34d399;
+        }
+
+        .debug-result.error {
+            color: #f87171;
+        }
+
+        .debug-result.pending {
+            color: #52525b;
+        }
+
+        /* ── View toggle ── */
+        .view-toggle {
+            display: flex;
+            border: 1px solid #d4d4d8;
+            border-radius: 6px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .view-btn {
+            padding: 6px 14px;
+            background: #fff;
+            border: none;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            color: #52525b;
+            transition: background 0.12s, color 0.12s;
+            white-space: nowrap;
+        }
+
+        .view-btn+.view-btn {
+            border-left: 1px solid #d4d4d8;
+        }
+
+        .view-btn.active {
+            background: #0a66c2;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .view-btn:hover:not(.active) {
+            background: #f4f4f5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="brand">
+            <h1>lihitter</h1>
+            <div class="subtitle">LinkedIn job results</div>
+        </div>
+        <nav>
+            <a href="/" class="active">Jobs</a>
+            <a href="/checklist">Checklist</a>
+            <a href="/settings">Settings</a>
+        </nav>
+    </header>
+
+    <div class="add-job-bar">
+        <input type="url" id="add-url" placeholder="Paste a LinkedIn job URL to add manually…" />
+        <button class="btn-add" id="btn-add-job">Add Job</button>
+        <span class="add-job-status" id="add-job-status"></span>
+    </div>
+
+    <div class="toolbar">
+        <div class="view-toggle">
+            <button class="view-btn active" data-view="smart">Smart</button>
+            <button class="view-btn" data-view="plain">Plain</button>
+        </div>
+        <input type="search" id="search" placeholder="Search title, company, location…" />
+        <div class="filter-btns" style="display:none">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="pass">Passed</button>
+            <button class="filter-btn" data-filter="fail">Failed</button>
+            <button class="filter-btn" data-filter="new">New</button>
+            <button class="filter-btn" data-filter="applied">Applied</button>
+            <button class="filter-btn" data-filter="wont_apply">Won't apply</button>
+            <button class="filter-btn" data-filter="ignore">Ignore</button>
+            <button class="filter-btn" data-filter="auto_skip">Auto skip</button>
+        </div>
+        <span class="count" id="count"></span>
+        <button class="btn-parse-gmail" id="btn-parse-gmail">Parse Gmail</button>
+        <button class="btn-rematch-all" id="btn-rematch-all">Rematch All</button>
+    </div>
+
+    <div class="table-wrap">
+        <div class="empty" id="loading">Loading…</div>
+        <div id="empty" class="empty" style="display:none">No jobs match your filter.</div>
+        <table id="table" style="display:none">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Company</th>
+                    <th>Location</th>
+                    <th>Date added</th>
+                    <th>Date matched</th>
+                    <th>Result</th>
+                    <th>Checklist</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+        </table>
+    </div>
+
+    <div class="drawer-backdrop" id="backdrop"></div>
+    <div class="drawer" id="drawer">
+        <div class="drawer-header">
+            <div class="drawer-top">
+                <div class="drawer-title" id="d-title"></div>
+                <button class="drawer-close" id="drawer-close">&#x2715;</button>
+            </div>
+            <div class="drawer-meta">
+                <span class="drawer-company" id="d-company"></span>
+                <span class="drawer-location" id="d-location"></span>
+            </div>
+            <div class="drawer-actions">
+                <span class="badge" id="d-badge"></span>
+                <a class="drawer-link" id="d-link" target="_blank" rel="noopener">Open on LinkedIn ↗</a>
+            </div>
+            <div class="drawer-tabs">
+                <button class="drawer-tab active" data-tab="jd">Job Description</button>
+                <button class="drawer-tab" data-tab="rules">Rules Match</button>
+            </div>
+        </div>
+        <div class="drawer-body">
+            <div class="tab-pane active" id="tab-jd">
+                <div class="drawer-section">
+                    <h3>Evaluation</h3>
+                    <div id="d-eval"></div>
+                </div>
+                <div class="drawer-section">
+                    <h3>Job Description</h3>
+                    <div class="drawer-desc" id="d-desc"></div>
+                </div>
+            </div>
+            <div class="tab-pane" id="tab-rules">
+                <div class="rules-toolbar">
+                    <button class="btn btn-ghost btn-sm" id="btn-rerun">Re-run checks</button>
+                </div>
+                <div class="results-empty" id="rules-empty"></div>
+                <div id="rules-running" style="display:none" class="results-empty"><span class="spinner"></span> Running
+                    checks…</div>
+                <table class="results-table" id="rules-table" style="display:none">
+                    <thead>
+                        <tr>
+                            <th style="width:32%">Check</th>
+                            <th style="width:12%">Result</th>
+                            <th>Reasoning</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rules-tbody"></tbody>
+                </table>
+                <div class="ran-at" id="rules-ran-at" style="display:none"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="debug-bar" class="debug-bar">
+        <div class="debug-bar-header" id="debug-toggle">
+            <span class="debug-bar-title">DEBUG</span>
+            <span class="debug-bar-summary" id="debug-summary">no ops yet</span>
+            <button class="debug-bar-clear" id="debug-clear">clear</button>
+            <span class="debug-chevron" id="debug-chevron">&#9650;</span>
+        </div>
+        <div class="debug-bar-body" id="debug-body" style="display:none">
+            <div class="debug-log" id="debug-log"></div>
+        </div>
+    </div>
+
+    <script>
+        let allJobs = [];
+        let activeView = 'smart';
+        let activeFilter = 'all';
+        let searchQuery = '';
+        let selectedId = null;
+
+        // ── Debug bar ──────────────────────────────────────────────────────────
+        let _debugEntries = [];
+        let _debugOpen = false;
+        let _debugIdSeq = 0;
+
+        function debugLog(type, url, status, detail) {
+            const id = ++_debugIdSeq;
+            const ts = new Date().toLocaleTimeString('en-GB', { hour12: false });
+            _debugEntries.push({ id, ts, type, url, status: status || 'pending', detail: detail || '' });
+            if (!_debugOpen) {
+                _debugOpen = true;
+                document.getElementById('debug-body').style.display = '';
+                document.getElementById('debug-chevron').innerHTML = '&#9660;';
+            }
+            _renderDebug();
+            return id;
+        }
+
+        function debugUpdate(id, status, detail) {
+            const e = _debugEntries.find(x => x.id === id);
+            if (e) { e.status = status; e.detail = detail; _renderDebug(); }
+        }
+
+        function _renderDebug() {
+            const log = document.getElementById('debug-log');
+            if (!log) return;
+            const count = _debugEntries.length;
+            document.getElementById('debug-summary').textContent =
+                count === 0 ? 'no ops yet' : `${count} op${count !== 1 ? 's' : ''}`;
+            log.innerHTML = [..._debugEntries].reverse().map(e => `
+                <div class="debug-entry">
+                    <span class="debug-ts">${e.ts}</span>
+                    <span class="debug-type ${e.type}">${e.type}</span>
+                    <span class="debug-url" title="${esc(e.url)}">${esc(e.url)}</span>
+                    <span class="debug-result ${e.status}">${esc(e.detail || e.status)}</span>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('debug-toggle').addEventListener('click', (ev) => {
+            if (ev.target.id === 'debug-clear') return;
+            _debugOpen = !_debugOpen;
+            document.getElementById('debug-body').style.display = _debugOpen ? '' : 'none';
+            document.getElementById('debug-chevron').innerHTML = _debugOpen ? '&#9660;' : '&#9650;';
+        });
+
+        document.getElementById('debug-clear').addEventListener('click', () => {
+            _debugEntries = [];
+            _renderDebug();
+        });
+
+        // ── Server-Sent Events — live webhook / parse / match feed ─────────────
+        (function connectDebugSSE() {
+            // Map server-side event id → client debug bar entry id
+            const _sseIdMap = {};
+
+            function handleSSE(event) {
+                let data;
+                try { data = JSON.parse(event.data); } catch (_) { return; }
+
+                const { type, id: serverId, url, status, detail } = data;
+
+                if (_sseIdMap[serverId] !== undefined) {
+                    // Update existing entry
+                    debugUpdate(_sseIdMap[serverId], status, detail);
+                } else {
+                    // New entry
+                    const clientId = debugLog(type, url, status, detail);
+                    _sseIdMap[serverId] = clientId;
+                }
+
+                // Reload the jobs table when a match completes so new rows appear
+                if (type === 'match' && status === 'ok') {
+                    load();
+                }
+                // Also reload after a webhook parse finishes to show newly added jobs
+                if (type === 'webhook' && status === 'ok') {
+                    setTimeout(load, 500);
+                }
+            }
+
+            let es;
+            function open() {
+                es = new EventSource('/api/events');
+                es.onmessage = handleSSE;
+                es.onerror = () => {
+                    es.close();
+                    setTimeout(open, 5000); // reconnect after 5 s
+                };
+            }
+            open();
+        })();
+
+        const STATUS_LABELS = {
+            new: 'New',
+            applied: 'Applied',
+            wont_apply: "Won't apply",
+            ignore: 'Ignore',
+            auto_skip: 'Auto skip'
+        };
+
+        async function load() {
+            try {
+                const res = await fetch('/api/jobs');
+                allJobs = await res.json();
+                render();
+            } catch (e) {
+                document.getElementById('loading').textContent = 'Failed to load: ' + e.message;
+            }
+        }
+
+        function fmtDate(iso) {
+            if (!iso) return '—';
+            return new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
+        }
+
+        function filtered() {
+            if (activeView === 'smart') {
+                const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+                const results = allJobs.filter(j => {
+                    if (j.status !== 'new') return false;
+                    if (!j.processedAt || new Date(j.processedAt).getTime() < sevenDaysAgo) return false;
+                    if (j.checklistTotal === 0) return false;
+                    if (j.checklistPassed < j.checklistTotal - 1) return false;
+                    if (j.langFailed) return false;
+                    if (searchQuery) {
+                        const q = searchQuery.toLowerCase();
+                        const hay = [j.title, j.company, j.location, j.description].join(' ').toLowerCase();
+                        if (!hay.includes(q)) return false;
+                    }
+                    return true;
+                });
+                results.sort((a, b) => b.checklistPassed - a.checklistPassed);
+                return results;
+            }
+            // Plain view — original logic
+            return allJobs.filter(j => {
+                if (activeFilter === 'pass' && !j.passed) return false;
+                if (activeFilter === 'fail' && j.passed) return false;
+                if (['new', 'applied', 'wont_apply', 'ignore', 'auto_skip'].includes(activeFilter) && j.status !== activeFilter) return false;
+                if (searchQuery) {
+                    const q = searchQuery.toLowerCase();
+                    const hay = [j.title, j.company, j.location, j.description].join(' ').toLowerCase();
+                    if (!hay.includes(q)) return false;
+                }
+                return true;
+            });
+        }
+
+        function esc(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function render() {
+            document.getElementById('loading').style.display = 'none';
+            const jobs = filtered();
+            const table = document.getElementById('table');
+            const empty = document.getElementById('empty');
+            document.getElementById('count').textContent =
+                `${jobs.length} of ${allJobs.length} job${allJobs.length !== 1 ? 's' : ''}`;
+
+            if (!jobs.length) {
+                table.style.display = 'none';
+                empty.textContent = activeView === 'smart'
+                    ? 'All caught up! No new jobs to review.'
+                    : 'No jobs match your filter.';
+                empty.style.display = '';
+                return;
+            }
+            table.style.display = '';
+            empty.style.display = 'none';
+
+            document.getElementById('tbody').innerHTML = jobs.map(j => {
+                const allMatch = j.checklistTotal > 0 && j.checklistPassed === j.checklistTotal;
+                const checklistClass = j.checklistTotal === 0 ? 'no-results' : allMatch ? 'all-match' : 'partial-match';
+                const checklistText = j.checklistTotal === 0 ? '—' : `${j.checklistPassed}/${j.checklistTotal}`;
+                const rowClasses = [selectedId === j.id ? 'selected' : '', allMatch ? 'row-all-match' : ''].filter(Boolean).join(' ');
+                return `
+      <tr data-id="${j.id}" class="${rowClasses}">
+        <td class="td-title">
+          <a href="${esc(j.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(j.title || '(untitled)')}</a>
+        </td>
+        <td class="td-company">${esc(j.company || '—')}</td>
+        <td class="td-location">${esc(j.location || '—')}</td>
+        <td class="td-date">${fmtDate(j.processedAt)}</td>
+        <td class="td-date">${fmtDate(j.matchedAt)}</td>
+        <td><span class="badge ${j.passed ? 'pass' : 'fail'}">${j.passed ? 'pass' : 'fail'}</span></td>
+        <td class="td-checklist ${checklistClass}">${checklistText}</td>
+        <td onclick="event.stopPropagation()">
+          <select class="status-select s-${esc(j.status)}" data-id="${j.id}">
+            <option value="new"        ${j.status === 'new' ? 'selected' : ''}>New</option>
+            <option value="applied"    ${j.status === 'applied' ? 'selected' : ''}>Applied</option>
+            <option value="wont_apply" ${j.status === 'wont_apply' ? 'selected' : ''}>Won't apply</option>
+            <option value="ignore"     ${j.status === 'ignore' ? 'selected' : ''}>Ignore</option>
+            <option value="auto_skip" ${j.status === 'auto_skip' ? 'selected' : ''}>Auto skip</option>
+          </select>
+        </td>
+        <td onclick="event.stopPropagation()">
+          <button class="btn-reparse" data-id="${j.id}">Reparse</button>
+          <button class="btn-rematch" data-id="${j.id}" style="margin-left:4px">Rematch</button>
+        </td>
+      </tr>
+    `;
+            }).join('');
+
+            document.querySelectorAll('#tbody tr').forEach(row => {
+                row.addEventListener('click', () => openDrawer(Number(row.dataset.id)));
+            });
+
+            document.querySelectorAll('.status-select').forEach(sel => {
+                sel.addEventListener('change', async (e) => {
+                    const id = Number(e.target.dataset.id);
+                    const status = e.target.value;
+                    await setStatus(id, status);
+                    e.target.className = `status-select s-${status}`;
+                });
+            });
+
+            document.querySelectorAll('.btn-reparse').forEach(btn => {
+                btn.addEventListener('click', () => reparseJob(Number(btn.dataset.id), btn));
+            });
+
+            document.querySelectorAll('.btn-rematch').forEach(btn => {
+                btn.addEventListener('click', () => rematchJob(Number(btn.dataset.id), btn));
+            });
+        }
+
+        async function reparseJob(id, btn) {
+            const prev = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = '…';
+            const jobUrl = allJobs.find(j => j.id === id)?.url || `job #${id}`;
+            const dbgId = debugLog('reparse', jobUrl, 'pending', 'fetching…');
+            try {
+                const res = await fetch(`/api/jobs/${id}/reparse`, { method: 'POST' });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Unknown error');
+                debugUpdate(dbgId, 'ok', data.title || 'done');
+                const idx = allJobs.findIndex(j => j.id === id);
+                if (idx !== -1) allJobs[idx] = data;
+                render();
+                if (selectedId === id) openDrawer(id);
+            } catch (e) {
+                debugUpdate(dbgId, 'error', e.message);
+                alert('Reparse failed: ' + e.message);
+                btn.disabled = false;
+                btn.textContent = prev;
+            }
+        }
+
+        async function rematchJob(id, btn) {
+            const prev = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = '…';
+            const jobUrl = allJobs.find(j => j.id === id)?.url || `job #${id}`;
+            const dbgId = debugLog('rematch', jobUrl, 'pending', 'running checks…');
+            try {
+                const res = await fetch(`/api/checklist/run/${id}`, { method: 'POST' });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Unknown error');
+                const results = data.results || [];
+                const pass = results.filter(r => r.passed).length;
+                const total = results.length;
+                debugUpdate(dbgId, 'ok', `${pass}/${total} passed`);
+                const idx = allJobs.findIndex(j => j.id === id);
+                if (idx !== -1) {
+                    allJobs[idx].checklistPassed = pass;
+                    allJobs[idx].checklistTotal = total;
+                }
+                // Log CLI invocations — one batch entry in quick mode, one per check otherwise
+                const cmd = data.model
+                    ? `opencode run --model ${data.model} --format json`
+                    : data.provider === 'mock' ? 'mock (no CLI)' : 'opencode run --format json';
+                if (data.quickMode) {
+                    const summary = results.map(r => `${r.passed ? '✓' : '✗'} ${r.label}`).join(' · ');
+                    debugLog('rematch', cmd + ' (batch)', 'ok', summary);
+                } else {
+                    for (const r of results) {
+                        debugLog('rematch', cmd, r.passed ? 'ok' : 'error',
+                            `${r.passed ? '✓' : '✗'} ${r.label}: ${(r.reasoning || '').slice(0, 120)}`);
+                    }
+                }
+                render();
+                if (selectedId === id) openDrawer(id);
+            } catch (e) {
+                debugUpdate(dbgId, 'error', e.message);
+                alert('Rematch failed: ' + e.message);
+            }
+            btn.disabled = false;
+            btn.textContent = prev;
+        }
+
+        async function setStatus(id, status) {
+            const job = allJobs.find(j => j.id === id);
+            if (job) job.status = status;
+            try {
+                await fetch(`/api/jobs/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status })
+                });
+            } catch (e) {
+                console.error('Failed to update status', e);
+            }
+        }
+
+        function openDrawer(id) {
+            const j = allJobs.find(x => x.id === id);
+            if (!j) return;
+            selectedId = id;
+
+            // Reset to JD tab
+            document.querySelectorAll('.drawer-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('.drawer-tab[data-tab="jd"]').classList.add('active');
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            document.getElementById('tab-jd').classList.add('active');
+            // Reset rules tab state
+            document.getElementById('rules-empty').style.display = 'none';
+            document.getElementById('rules-table').style.display = 'none';
+            document.getElementById('rules-ran-at').style.display = 'none';
+            document.getElementById('rules-running').style.display = 'none';
+
+            document.getElementById('d-title').textContent = j.title || '(untitled)';
+            document.getElementById('d-company').textContent = j.company || '—';
+            document.getElementById('d-location').textContent = j.location || '—';
+            document.getElementById('d-link').href = j.url;
+
+            const badge = document.getElementById('d-badge');
+            badge.textContent = j.passed ? 'pass' : 'fail';
+            badge.className = 'badge ' + (j.passed ? 'pass' : 'fail');
+
+            const evalEl = document.getElementById('d-eval');
+            evalEl.innerHTML = '<span style="color:#71717a;font-size:0.85em">Loading…</span>';
+            fetch(`/api/checklist/results/${j.id}`).then(r => r.json()).then(results => {
+                if (!results.length) {
+                    evalEl.innerHTML = '<span style="color:#71717a;font-size:0.85em">No checklist results yet.</span>';
+                    return;
+                }
+                evalEl.innerHTML = results.map(r =>
+                    `<div class="eval-row"><span>${r.passed ? '✅' : '❌'}</span> ${esc(r.label)}</div>`
+                ).join('');
+            }).catch(() => {
+                evalEl.innerHTML = '<span style="color:#71717a;font-size:0.85em">Could not load results.</span>';
+            });
+
+            document.getElementById('d-desc').textContent = j.description || 'No description captured.';
+            document.getElementById('backdrop').classList.add('open');
+            document.getElementById('drawer').classList.add('open');
+            render();
+        }
+
+        function closeDrawer() {
+            selectedId = null;
+            document.getElementById('backdrop').classList.remove('open');
+            document.getElementById('drawer').classList.remove('open');
+            render();
+        }
+
+        document.getElementById('drawer-close').addEventListener('click', closeDrawer);
+        document.getElementById('backdrop').addEventListener('click', closeDrawer);
+        document.getElementById('search').addEventListener('input', e => { searchQuery = e.target.value.trim(); render(); });
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                activeView = btn.dataset.view;
+                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const filterBtns = document.querySelector('.filter-btns');
+                if (activeView === 'plain') {
+                    filterBtns.style.display = '';
+                } else {
+                    filterBtns.style.display = 'none';
+                    activeFilter = 'all';
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
+                }
+                render();
+            });
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                activeFilter = btn.dataset.filter;
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                render();
+            });
+        });
+
+        // ── Drawer tabs ─────────────────────────────────────────────────────────────
+        document.querySelectorAll('.drawer-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.drawer-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+                document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+                if (tab.dataset.tab === 'rules' && selectedId) {
+                    const jobUrl = allJobs.find(j => j.id === selectedId)?.url || `job #${selectedId}`;
+                    const dbgId = debugLog('match', jobUrl, 'pending', 'loading results…');
+                    loadChecklistResults(selectedId).then(() => {
+                        debugUpdate(dbgId, 'ok', 'loaded');
+                    }).catch(e => debugUpdate(dbgId, 'error', e.message));
+                }
+            });
+        });
+
+        async function loadChecklistResults(jobId) {
+            const empty = document.getElementById('rules-empty');
+            const running = document.getElementById('rules-running');
+            const table = document.getElementById('rules-table');
+            const ranAt = document.getElementById('rules-ran-at');
+            empty.style.display = 'none';
+            running.style.display = '';
+            table.style.display = 'none';
+            ranAt.style.display = 'none';
+
+            const res = await fetch(`/api/checklist/results/${jobId}`);
+            const results = await res.json();
+            running.style.display = 'none';
+
+            if (!results.length) {
+                empty.textContent = 'No checklist results yet. Click Re-run checks to evaluate this job.';
+                empty.style.display = '';
+                return;
+            }
+
+            document.getElementById('rules-tbody').innerHTML = results.map(r => `
+      <tr>
+        <td class="check-label-cell">${esc(r.label)}</td>
+        <td><span class="badge ${r.passed ? 'pass' : 'fail'}">${r.passed ? '&#x2714; pass' : '&#x2718; fail'}</span></td>
+        <td><div class="reasoning-text">${esc(r.reasoning || '—')}</div></td>
+      </tr>
+    `).join('');
+            table.style.display = '';
+
+            const ts = results[0]?.ranAt;
+            if (ts) {
+                ranAt.textContent = `Last run: ${new Date(ts).toLocaleString()}`;
+                ranAt.style.display = '';
+            }
+        }
+
+        document.getElementById('btn-rerun').addEventListener('click', async () => {
+            if (!selectedId) return;
+            const btn = document.getElementById('btn-rerun');
+            btn.disabled = true;
+            btn.textContent = 'Running…';
+            document.getElementById('rules-table').style.display = 'none';
+            document.getElementById('rules-empty').style.display = 'none';
+            document.getElementById('rules-ran-at').style.display = 'none';
+            document.getElementById('rules-running').style.display = '';
+            const jobUrl = allJobs.find(j => j.id === selectedId)?.url || `job #${selectedId}`;
+            const dbgId = debugLog('rematch', jobUrl, 'pending', 'running checks…');
+            try {
+                const res = await fetch(`/api/checklist/run/${selectedId}`, { method: 'POST' });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Unknown error');
+                const results = data.results || [];
+                const pass = results.filter(r => r.passed).length;
+                const total = results.length;
+                debugUpdate(dbgId, 'ok', `${pass}/${total} passed`);
+                // Update checklist counts in allJobs so the table row refreshes
+                const jobIdx = allJobs.findIndex(j => j.id === selectedId);
+                if (jobIdx !== -1) {
+                    allJobs[jobIdx].checklistPassed = pass;
+                    allJobs[jobIdx].checklistTotal = total;
+                }
+                // Log CLI invocations — one batch entry in quick mode, one per check otherwise
+                const cmd = data.model
+                    ? `opencode run --model ${data.model} --format json`
+                    : data.provider === 'mock' ? 'mock (no CLI)' : 'opencode run --format json';
+                if (data.quickMode) {
+                    const summary = results.map(r => `${r.passed ? '✓' : '✗'} ${r.label}`).join(' · ');
+                    debugLog('rematch', cmd + ' (batch)', 'ok', summary);
+                } else {
+                    for (const r of results) {
+                        debugLog('rematch', cmd, r.passed ? 'ok' : 'error',
+                            `${r.passed ? '✓' : '✗'} ${r.label}: ${(r.reasoning || '').slice(0, 120)}`);
+                    }
+                }
+            } catch (e) {
+                debugUpdate(dbgId, 'error', e.message);
+            }
+            await loadChecklistResults(selectedId);
+            render();
+            btn.disabled = false;
+            btn.textContent = 'Re-run checks';
+        });
+
+        // ── Manual add ──────────────────────────────────────────────────────────
+        document.getElementById('btn-add-job').addEventListener('click', async () => {
+            const input = document.getElementById('add-url');
+            const status = document.getElementById('add-job-status');
+            const btn = document.getElementById('btn-add-job');
+            const url = input.value.trim();
+
+            if (!url) { status.className = 'add-job-status error'; status.textContent = 'Please enter a URL.'; return; }
+
+            btn.disabled = true;
+            btn.textContent = 'Adding…';
+            status.className = 'add-job-status';
+            status.textContent = 'Scraping job…';
+
+            const dbgId = debugLog('parse', url, 'pending', 'fetching…');
+            try {
+                const res = await fetch('/api/jobs/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Unknown error');
+                debugUpdate(dbgId, 'ok', data.title || data.url);
+
+                allJobs.unshift(data);
+                render();
+                input.value = '';
+                status.className = 'add-job-status ok';
+                status.textContent = `Added: ${data.title || data.url}`;
+                setTimeout(() => { status.textContent = ''; }, 4000);
+            } catch (e) {
+                debugUpdate(dbgId, 'error', e.message);
+                status.className = 'add-job-status error';
+                status.textContent = 'Error: ' + e.message;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Add Job';
+            }
+        });
+
+        // ── Parse Gmail ──────────────────────────────────────────────────────────
+        document.getElementById('btn-parse-gmail').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-parse-gmail');
+            btn.disabled = true;
+            btn.textContent = 'Fetching…';
+            const dbgId = debugLog('gmail', 'Gmail API', 'pending', 'fetching emails…');
+            try {
+                const res = await fetch('/api/gmail/fetch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Unknown error');
+                if (data.processed === 0) {
+                    debugUpdate(dbgId, 'ok', 'No new emails');
+                } else {
+                    debugUpdate(dbgId, 'ok',
+                        `${data.processed} email${data.processed !== 1 ? 's' : ''}, ${data.totalVacancies} job${data.totalVacancies !== 1 ? 's' : ''} found`);
+                    if (Array.isArray(data.emails)) {
+                        for (const email of data.emails) {
+                            debugLog('gmail', email.subject, 'ok',
+                                `${email.vacancyCount} job${email.vacancyCount !== 1 ? 's' : ''} found`);
+                        }
+                    }
+                }
+                if (data.totalVacancies > 0) await load();
+            } catch (e) {
+                debugUpdate(dbgId, 'error', e.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Parse Gmail';
+            }
+        });
+
+        // ── Rematch All ──────────────────────────────────────────────────────────
+        document.getElementById('btn-rematch-all').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-rematch-all');
+            btn.disabled = true;
+            const jobs = filtered();
+            if (!jobs.length) { btn.disabled = false; return; }
+            btn.textContent = `0/${jobs.length}…`;
+            let done = 0;
+            for (const j of jobs) {
+                const jobUrl = j.url || `job #${j.id}`;
+                const dbgId = debugLog('rematch', jobUrl, 'pending', 'running checks…');
+                try {
+                    const res = await fetch(`/api/checklist/run/${j.id}`, { method: 'POST' });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || 'Unknown error');
+                    const results = data.results || [];
+                    const pass = results.filter(r => r.passed).length;
+                    const total = results.length;
+                    debugUpdate(dbgId, 'ok', `${pass}/${total} passed`);
+                    const idx = allJobs.findIndex(x => x.id === j.id);
+                    if (idx !== -1) {
+                        allJobs[idx].checklistPassed = pass;
+                        allJobs[idx].checklistTotal = total;
+                    }
+                    const cmd = data.model
+                        ? `opencode run --model ${data.model} --format json`
+                        : data.provider === 'mock' ? 'mock (no CLI)' : 'opencode run --format json';
+                    for (const r of results) {
+                        debugLog('rematch', cmd, r.passed ? 'ok' : 'error',
+                            `${r.passed ? '✓' : '✗'} ${r.label}: ${(r.reasoning || '').slice(0, 120)}`);
+                    }
+                } catch (e) {
+                    debugUpdate(dbgId, 'error', e.message);
+                }
+                done++;
+                btn.textContent = `${done}/${jobs.length}…`;
+                render();
+            }
+            btn.disabled = false;
+            btn.textContent = 'Rematch All';
+        });
+
+        // Also allow pressing Enter in the URL input
+        document.getElementById('add-url').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('btn-add-job').click();
+        });
+
+        load();
+    </script>
+</body>
+
+</html>

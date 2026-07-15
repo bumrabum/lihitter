@@ -1,0 +1,9 @@
+{
+  "proxy": {
+    "server": "http://host:port",
+    "username": "",
+    "password": ""
+  },
+  "debug": false,
+  "quickMode": false
+}

@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>lihitter — settings</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f4f4f5;
+            color: #18181b;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #0a66c2;
+            color: #fff;
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        header .brand {
+            display: flex;
+            flex-direction: column;
+        }
+
+        header h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        header .subtitle {
+            font-size: 0.8rem;
+            opacity: 0.75;
+            margin-top: 2px;
+        }
+
+        header nav {
+            display: flex;
+            gap: 6px;
+        }
+
+        header nav a {
+            color: rgba(255, 255, 255, 0.75);
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 6px 14px;
+            border-radius: 6px;
+            transition: background 0.12s, color 0.12s;
+        }
+
+        header nav a:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+
+        header nav a.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .layout {
+            max-width: 720px;
+            margin: 40px auto;
+            padding: 0 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            border: 1px solid #e4e4e7;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e4e4e7;
+        }
+
+        .card-header h2 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #18181b;
+        }
+
+        .card-header p {
+            margin-top: 4px;
+            font-size: 0.82rem;
+            color: #71717a;
+            line-height: 1.5;
+        }
+
+        .card-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #71717a;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .badge.set {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge.unset {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        textarea {
+            width: 100%;
+            height: 180px;
+            padding: 10px 12px;
+            border: 1px solid #d4d4d8;
+            border-radius: 6px;
+            font-family: ui-monospace, "SF Mono", Menlo, monospace;
+            font-size: 0.78rem;
+            line-height: 1.5;
+            resize: vertical;
+            outline: none;
+            color: #18181b;
+            background: #fafafa;
+        }
+
+        textarea:focus {
+            border-color: #0a66c2;
+            box-shadow: 0 0 0 2px #0a66c218;
+            background: #fff;
+        }
+
+        textarea::placeholder {
+            color: #a1a1aa;
+        }
+
+        .row-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 8px 18px;
+            border-radius: 6px;
+            border: none;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.12s, opacity 0.12s;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: #0a66c2;
+            color: #fff;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #0958a8;
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #fecaca;
+        }
+
+        .msg {
+            font-size: 0.82rem;
+            font-weight: 500;
+        }
+
+        .msg.ok {
+            color: #166534;
+        }
+
+        .msg.err {
+            color: #991b1b;
+        }
+
+        .hint {
+            font-size: 0.78rem;
+            color: #71717a;
+            line-height: 1.5;
+        }
+
+        .hint code {
+            background: #f4f4f5;
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-family: ui-monospace, "SF Mono", Menlo, monospace;
+            font-size: 0.75rem;
+        }
+
+        .check-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .check-row input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #0a66c2;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .check-row label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .field-row {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .field-row label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #3f3f46;
+        }
+
+        .field-row input[type="text"] {
+            width: 100%;
+            padding: 8px 11px;
+            border: 1px solid #d4d4d8;
+            border-radius: 6px;
+            font-family: ui-monospace, "SF Mono", Menlo, monospace;
+            font-size: 0.82rem;
+            outline: none;
+            background: #fafafa;
+            color: #18181b;
+        }
+
+        .field-row input[type="text"]:focus {
+            border-color: #0a66c2;
+            box-shadow: 0 0 0 2px #0a66c218;
+            background: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="brand">
+            <h1>lihitter</h1>
+            <div class="subtitle">settings</div>
+        </div>
+        <nav>
+            <a href="/">Jobs</a>
+            <a href="/checklist">Checklist</a>
+            <a href="/settings" class="active">Settings</a>
+        </nav>
+    </header>
+
+    <div class="layout">
+        <div class="card">
+            <div class="card-header">
+                <h2>LinkedIn cookies</h2>
+                <p>Paste your browser cookies so the app can scrape LinkedIn jobs without a username/password login.</p>
+            </div>
+            <div class="card-body">
+                <div class="status-row">
+                    Status: <span id="status-badge" class="badge unset">not set</span>
+                </div>
+
+                <textarea id="cookie-input"
+                    placeholder='Paste cookie JSON here — e.g. from the "Cookie-Editor" browser extension (Export → JSON), or a raw Cookie header string.'></textarea>
+
+                <p class="hint">
+                    Easiest way: install
+                    <strong>Cookie-Editor</strong> (Chrome / Firefox), go to
+                    <code>linkedin.com</code> while logged in, open the extension,
+                    click <strong>Export → JSON</strong>, and paste the result above.
+                    A raw <code>name=value; name2=value2</code> cookie string also works.
+                </p>
+
+                <div class="row-actions">
+                    <button class="btn btn-primary" id="btn-save">Save cookies</button>
+                    <button class="btn btn-danger" id="btn-clear">Clear saved cookies</button>
+                    <span class="msg" id="msg"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Proxy</h2>
+                <p>Route LinkedIn requests through a proxy so cookies issued in your browser work from the server's IP.
+                </p>
+            </div>
+            <div class="card-body">
+                <div class="status-row">
+                    Status: <span id="proxy-badge" class="badge unset">not set</span>
+                </div>
+
+                <div class="field-row">
+                    <label for="proxy-server">Server (host:port)</label>
+                    <input type="text" id="proxy-server" placeholder="host:port" />
+                </div>
+
+                <div class="field-row">
+                    <label for="proxy-creds">Credentials (username:password)</label>
+                    <input type="text" id="proxy-creds" placeholder="username:password" />
+                </div>
+
+                <div class="row-actions">
+                    <button class="btn btn-primary" id="btn-save-proxy">Save proxy</button>
+                    <button class="btn btn-danger" id="btn-clear-proxy">Clear proxy</button>
+                    <span class="msg" id="proxy-msg"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Debug mode</h2>
+                <p>When enabled, the Playwright browser window is visible during scraping. Useful for diagnosing login
+                    or cookie issues.</p>
+            </div>
+            <div class="card-body">
+                <div class="check-row">
+                    <input type="checkbox" id="debug-toggle" />
+                    <label for="debug-toggle">Show browser window (disable headless)</label>
+                </div>
+                <span class="msg" id="debug-msg"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const statusBadge = document.getElementById('status-badge');
+        const cookieInput = document.getElementById('cookie-input');
+        const btnSave = document.getElementById('btn-save');
+        const btnClear = document.getElementById('btn-clear');
+        const msgEl = document.getElementById('msg');
+
+        function setMsg(text, type) {
+            msgEl.textContent = text;
+            msgEl.className = 'msg ' + type;
+            if (text) setTimeout(() => { msgEl.textContent = ''; msgEl.className = 'msg'; }, 4000);
+        }
+
+        async function loadStatus() {
+            try {
+                const res = await fetch('/api/settings/cookies');
+                const data = await res.json();
+                if (data.set) {
+                    statusBadge.textContent = `${data.count} cookies saved`;
+                    statusBadge.className = 'badge set';
+                    cookieInput.value = data.cookieString;
+                } else {
+                    statusBadge.textContent = 'not set';
+                    statusBadge.className = 'badge unset';
+                    cookieInput.value = '';
+                }
+            } catch {
+                statusBadge.textContent = 'unknown';
+                statusBadge.className = 'badge unset';
+            }
+        }
+
+        btnSave.addEventListener('click', async () => {
+            const raw = cookieInput.value.trim();
+            if (!raw) { setMsg('Paste your cookies first.', 'err'); return; }
+            btnSave.disabled = true;
+            try {
+                const res = await fetch('/api/settings/cookies', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cookies: raw })
+                });
+                const data = await res.json();
+                if (!res.ok) { setMsg(data.error || 'Failed to save.', 'err'); return; }
+                cookieInput.value = '';
+                setMsg(`Saved ${data.count} cookies.`, 'ok');
+                loadStatus();
+            } catch (e) {
+                setMsg('Request failed.', 'err');
+            } finally {
+                btnSave.disabled = false;
+            }
+        });
+
+        btnClear.addEventListener('click', async () => {
+            btnClear.disabled = true;
+            try {
+                const res = await fetch('/api/settings/cookies', { method: 'DELETE' });
+                const data = await res.json();
+                if (!res.ok) { setMsg(data.error || 'Failed to clear.', 'err'); return; }
+                setMsg('Cookies cleared.', 'ok');
+                loadStatus();
+            } catch {
+                setMsg('Request failed.', 'err');
+            } finally {
+                btnClear.disabled = false;
+            }
+        });
+
+        loadStatus();
+
+        // ── Proxy ──────────────────────────────────────────────────────────────
+        const proxyBadge = document.getElementById('proxy-badge');
+        const proxyServer = document.getElementById('proxy-server');
+        const proxyCreds = document.getElementById('proxy-creds');
+        const btnSaveProxy = document.getElementById('btn-save-proxy');
+        const btnClearProxy = document.getElementById('btn-clear-proxy');
+        const proxyMsg = document.getElementById('proxy-msg');
+
+        function setProxyMsg(text, type) {
+            proxyMsg.textContent = text;
+            proxyMsg.className = 'msg ' + type;
+            if (text) setTimeout(() => { proxyMsg.textContent = ''; proxyMsg.className = 'msg'; }, 4000);
+        }
+
+        async function loadProxyStatus() {
+            try {
+                const res = await fetch('/api/settings/proxy');
+                const data = await res.json();
+                if (data.set && data.proxy) {
+                    proxyBadge.textContent = data.proxy.server + (data.proxy.username ? ` (${data.proxy.username})` : '');
+                    proxyBadge.className = 'badge set';
+                    proxyServer.value = data.proxy.server.replace(/^https?:\/\//, '');
+                    if (data.proxy.username || data.proxy.password) {
+                        proxyCreds.value = `${data.proxy.username || ''}:${data.proxy.password || ''}`;
+                    }
+                } else {
+                    proxyBadge.textContent = 'not set';
+                    proxyBadge.className = 'badge unset';
+                }
+            } catch {
+                proxyBadge.textContent = 'unknown';
+                proxyBadge.className = 'badge unset';
+            }
+        }
+
+        btnSaveProxy.addEventListener('click', async () => {
+            const server = proxyServer.value.trim();
+            if (!server) { setProxyMsg('Enter a host:port.', 'err'); return; }
+            const colonIdx = proxyCreds.value.indexOf(':');
+            const username = colonIdx !== -1 ? proxyCreds.value.slice(0, colonIdx).trim() : proxyCreds.value.trim();
+            const password = colonIdx !== -1 ? proxyCreds.value.slice(colonIdx + 1).trim() : '';
+            btnSaveProxy.disabled = true;
+            try {
+                const res = await fetch('/api/settings/proxy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ server, username, password })
+                });
+                const data = await res.json();
+                if (!res.ok) { setProxyMsg(data.error || 'Failed to save.', 'err'); return; }
+                setProxyMsg('Proxy saved.', 'ok');
+                loadProxyStatus();
+            } catch {
+                setProxyMsg('Request failed.', 'err');
+            } finally {
+                btnSaveProxy.disabled = false;
+            }
+        });
+
+        btnClearProxy.addEventListener('click', async () => {
+            btnClearProxy.disabled = true;
+            try {
+                const res = await fetch('/api/settings/proxy', { method: 'DELETE' });
+                const data = await res.json();
+                if (!res.ok) { setProxyMsg(data.error || 'Failed to clear.', 'err'); return; }
+                setProxyMsg('Proxy cleared.', 'ok');
+                loadProxyStatus();
+            } catch {
+                setProxyMsg('Request failed.', 'err');
+            } finally {
+                btnClearProxy.disabled = false;
+            }
+        });
+
+        loadProxyStatus();
+
+        // ── Debug mode ─────────────────────────────────────────────────────────
+        const debugToggle = document.getElementById('debug-toggle');
+        const debugMsg = document.getElementById('debug-msg');
+
+        function setDebugMsg(text, type) {
+            debugMsg.textContent = text;
+            debugMsg.className = 'msg ' + type;
+            if (text) setTimeout(() => { debugMsg.textContent = ''; debugMsg.className = 'msg'; }, 3000);
+        }
+
+        async function loadDebugStatus() {
+            try {
+                const res = await fetch('/api/settings/debug');
+                const data = await res.json();
+                debugToggle.checked = !!data.debug;
+            } catch { }
+        }
+
+        debugToggle.addEventListener('change', async () => {
+            try {
+                const res = await fetch('/api/settings/debug', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ debug: debugToggle.checked })
+                });
+                const data = await res.json();
+                if (!res.ok) { setDebugMsg(data.error || 'Failed to save.', 'err'); return; }
+                setDebugMsg(debugToggle.checked ? 'Debug mode enabled.' : 'Debug mode disabled.', 'ok');
+            } catch {
+                setDebugMsg('Request failed.', 'err');
+            }
+        });
+
+        loadDebugStatus();
+    </script>
+</body>
+
+</html>
